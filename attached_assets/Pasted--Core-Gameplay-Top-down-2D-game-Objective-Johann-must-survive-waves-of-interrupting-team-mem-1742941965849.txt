@@ -1,0 +1,102 @@
+## Core Gameplay
+
+- Top-down 2D game
+- Objective: Johann must survive waves of interrupting team members
+- Simple XP collection from defeating enemies
+- Basic movement and ability-based combat
+- Getting a level refills health
+
+## Controls
+
+- Movement: WASD Keys
+    - W: Move Up
+    - A: Move Left
+    - S: Move Down
+    - D: Move Right
+- Abilities: JIKL Keys
+    1. J: Lightning Ability
+    2. K: Magic Missile Ability
+    3. L: Fire Cone Ability
+    4. I: Speed Burst
+
+## Asset List
+
+### Character Assets
+
+1. **Player Character (Johann)**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+
+### Enemy Assets
+
+1. **Basic Team Member Enemy**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+2. **Design Team Member 1 (Ariel)**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+3. **Design Team Member 2 (Tim)**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+4. **Project Manager Enemy (Margaret)**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+5. **Developer Support Enemy 1 (John)**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+6. **Developer Support Enemy 2 (Kirtik)**
+    - Single static sprite
+    - Red overlay/shading for hurt state
+    - Fade-out animation for death
+
+### Ability VFX Assets
+
+1. **Lightning Ability**
+    - Lightning bolt sprite/animation
+    - Impact effect
+2. **Magic Missile Ability**
+    - Missile projectile sprite
+    - Impact explosion
+3. **Fire Cone Ability**
+    - Fire cone spread sprite
+4. **Speed Burst**
+    - Speed lines/blur effect
+
+### Environment Assets
+
+1. **Background**
+    - Office-themed background tile set
+2. **Collectibles**
+    - XP orb that pulses
+    - crystal that glows
+
+### UI Assets
+
+1. **Game Over Screen**
+    - "Happiest of birthdays, Johann! Better luck next time." message
+    - Restart button
+    - Confetti birthday animation/effect
+2. **Health Bar**
+    - Background bar
+    - Fill bar
+3. **XP Bar**
+    - Background bar
+    - Fill bar
+    - Number for level (10 enemies per level)
+4. **Ability Cooldown Indicators**
+    - Cooldown overlay for each ability
+    - Ability icon set
+
+## Death Sequence
+
+- When Johann dies:
+    1. Screen fades
+    2. "Thank you for being a great developer" message appears
+    3. Confetti animation triggers
+    4. Restart button becomes active
