@@ -39,15 +39,29 @@ def load_image(path, scale=1.0):
         print(f"Error loading image: {path}")
         return pygame.Surface((50, 50), pygame.SRCALPHA)
 
-# Assets
-player_img = load_image('attached_assets/hero-johann.png', 0.5)
+# Assets - scaled down by factor of 1/4 (0.125 instead of 0.5)
+player_img = load_image('attached_assets/hero-johann.png', 0.125)
 enemy_images = {
-    'ariel': load_image('attached_assets/mob-ariel.png', 0.5),
-    'tim': load_image('attached_assets/mob-tim.png', 0.5),
-    'margaret': load_image('attached_assets/mob-margaret.png', 0.5),
-    'john': load_image('attached_assets/mob-john.png', 0.5),
-    'kirtik': load_image('attached_assets/mob-kirtik.png', 0.5)
+    'ariel': load_image('attached_assets/mob-ariel.png', 0.125),
+    'tim': load_image('attached_assets/mob-tim.png', 0.125),
+    'margaret': load_image('attached_assets/mob-margaret.png', 0.125),
+    'john': load_image('attached_assets/mob-john.png', 0.125),
+    'kirtik': load_image('attached_assets/mob-kirtik.png', 0.125)
 }
+
+# Speech bubble messages
+SPEECH_MESSAGES = [
+    "New high-priority task assigned!",
+    "Design has been updated... again",
+    "Can we huddle right now?",
+    "Urgent email that needs your attention!",
+    "Let's schedule a meeting",
+    "Did you see my Slack message?",
+    "The client wants changes",
+    "Let's talk about your estimates",
+    "The deadline was moved up",
+    "Just a quick question..."
+]
 
 # Effects
 lightning_img = pygame.Surface((20, 200), pygame.SRCALPHA)
@@ -94,9 +108,11 @@ class Player(pygame.sprite.Sprite):
         if keys[K_d]:
             self.rect.x += self.speed * speed_modifier
             
-        # Screen boundaries
-        self.rect.x = max(0, min(self.rect.x, SCREEN_WIDTH - self.rect.width))
-        self.rect.y = max(0, min(self.rect.y, SCREEN_HEIGHT - self.rect.height))
+        # World boundaries (larger than screen)
+        WORLD_WIDTH = SCREEN_WIDTH * 3
+        WORLD_HEIGHT = SCREEN_HEIGHT * 3
+        self.rect.x = max(0, min(self.rect.x, WORLD_WIDTH - self.rect.width))
+        self.rect.y = max(0, min(self.rect.y, WORLD_HEIGHT - self.rect.height))
         
         # Cooldown timers
         for ability in self.abilities:
@@ -161,6 +177,26 @@ class Player(pygame.sprite.Sprite):
         self.xp_to_level = 10 * self.level
         self.health = self.max_health  # Refill health on level up
         
+# Camera class
+class Camera:
+    def __init__(self, width, height):
+        self.camera = pygame.Rect(0, 0, width, height)
+        self.width = width
+        self.height = height
+        
+    def apply(self, entity):
+        return entity.rect.move(self.camera.topleft)
+        
+    def update(self, target):
+        x = -target.rect.centerx + int(SCREEN_WIDTH / 2)
+        y = -target.rect.centery + int(SCREEN_HEIGHT / 2)
+        
+        # Limit scrolling to game area
+        x = min(0, x)  # left
+        y = min(0, y)  # top
+        
+        self.camera = pygame.Rect(x, y, self.width, self.height)
+
 # Enemy class
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, enemy_type):
@@ -174,6 +210,12 @@ class Enemy(pygame.sprite.Sprite):
         self.hurt_timer = 0
         self.target = None
         
+        # Speech bubble
+        self.speech_message = random.choice(SPEECH_MESSAGES)
+        self.show_speech = False
+        self.speech_timer = 0
+        self.speech_duration = 180  # 3 seconds at 60 FPS
+        
     def update(self):
         if self.target:
             # Move towards player
@@ -186,6 +228,19 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
             
+            # Show speech bubble when close to player
+            if dist < 200 and not self.show_speech and random.random() < 0.02:
+                self.show_speech = True
+                self.speech_timer = self.speech_duration
+                # Randomly select a new message
+                self.speech_message = random.choice(SPEECH_MESSAGES)
+            
+        # Speech bubble timer
+        if self.speech_timer > 0:
+            self.speech_timer -= 1
+            if self.speech_timer <= 0:
+                self.show_speech = False
+            
         # Hurt timer
         if self.hurt_timer > 0:
             self.hurt_timer -= 1
@@ -194,6 +249,45 @@ class Enemy(pygame.sprite.Sprite):
         if self.hurt_timer == 0:
             self.health -= amount
             self.hurt_timer = 10
+            
+    def draw_speech_bubble(self, surface, camera):
+        if self.show_speech:
+            # Get position adjusted for camera
+            pos = camera.apply(self)
+            
+            # Create font
+            font = pygame.font.SysFont(None, 18)
+            
+            # Render text
+            text_surface = font.render(self.speech_message, True, BLACK)
+            text_rect = text_surface.get_rect()
+            
+            # Create bubble
+            bubble_width = text_rect.width + 10
+            bubble_height = text_rect.height + 10
+            bubble_rect = pygame.Rect(
+                pos.centerx - bubble_width // 2,
+                pos.top - bubble_height - 5,
+                bubble_width,
+                bubble_height
+            )
+            
+            # Draw bubble
+            pygame.draw.rect(surface, WHITE, bubble_rect, border_radius=5)
+            pygame.draw.rect(surface, BLACK, bubble_rect, 1, border_radius=5)
+            
+            # Draw triangle pointer
+            pygame.draw.polygon(surface, WHITE, [
+                (pos.centerx - 5, bubble_rect.bottom),
+                (pos.centerx + 5, bubble_rect.bottom),
+                (pos.centerx, bubble_rect.bottom + 5)
+            ])
+            
+            # Position text inside bubble
+            text_rect.center = bubble_rect.center
+            
+            # Draw text
+            surface.blit(text_surface, text_rect)
         
 # Projectile class
 class Projectile(pygame.sprite.Sprite):
@@ -303,20 +397,30 @@ def draw_ability_cooldowns(surface, player):
         draw_text(surface, key, 20, x + 20, 25, color)
         
 def spawn_enemy(player_pos, enemies_group, all_sprites, wave_num):
-    # Choose spawn position outside the screen
+    # Define the size of the world
+    WORLD_WIDTH = SCREEN_WIDTH * 3
+    WORLD_HEIGHT = SCREEN_HEIGHT * 3
+    
+    # Calculate visible area based on player position
+    min_x = max(0, player_pos.rect.centerx - SCREEN_WIDTH)
+    max_x = min(WORLD_WIDTH, player_pos.rect.centerx + SCREEN_WIDTH)
+    min_y = max(0, player_pos.rect.centery - SCREEN_HEIGHT)
+    max_y = min(WORLD_HEIGHT, player_pos.rect.centery + SCREEN_HEIGHT)
+    
+    # Choose spawn position outside visible area but inside world boundaries
     side = random.randint(0, 3)
     if side == 0:  # Top
-        x = random.randint(0, SCREEN_WIDTH)
-        y = -50
+        x = random.randint(min_x, max_x)
+        y = max(0, min_y - 100)
     elif side == 1:  # Right
-        x = SCREEN_WIDTH + 50
-        y = random.randint(0, SCREEN_HEIGHT)
+        x = min(WORLD_WIDTH, max_x + 100)
+        y = random.randint(min_y, max_y)
     elif side == 2:  # Bottom
-        x = random.randint(0, SCREEN_WIDTH)
-        y = SCREEN_HEIGHT + 50
+        x = random.randint(min_x, max_x)
+        y = min(WORLD_HEIGHT, max_y + 100)
     else:  # Left
-        x = -50
-        y = random.randint(0, SCREEN_HEIGHT)
+        x = max(0, min_x - 100)
+        y = random.randint(min_y, max_y)
         
     # Choose enemy type based on wave number
     enemy_types = ['ariel', 'tim', 'margaret', 'john', 'kirtik']
@@ -360,6 +464,9 @@ def game():
     player = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     all_sprites.add(player)
     
+    # Create camera
+    camera = Camera(SCREEN_WIDTH * 3, SCREEN_HEIGHT * 3)  # Create a larger world
+    
     # Game variables
     running = True
     game_over = False
@@ -368,6 +475,13 @@ def game():
     wave_size = 5
     spawn_timer = 0
     spawn_delay = 60  # 1 second at 60 FPS
+    
+    # Define the size of the world
+    WORLD_WIDTH = SCREEN_WIDTH * 3
+    WORLD_HEIGHT = SCREEN_HEIGHT * 3
+    
+    # Tile size (smaller tiles)
+    TILE_SIZE = 20  # Reduced from 50
     
     while running:
         # Process events
@@ -395,6 +509,9 @@ def game():
         if not game_over:
             # Update
             all_sprites.update()
+            
+            # Update camera to follow player
+            camera.update(player)
             
             # Spawn enemies
             if len(enemies) < wave_size and spawn_timer <= 0:
@@ -458,13 +575,32 @@ def game():
         # Draw
         DISPLAYSURF.fill(BLACK)
         
-        # Draw background (office tile)
-        for x in range(0, SCREEN_WIDTH, 50):
-            for y in range(0, SCREEN_HEIGHT, 50):
-                pygame.draw.rect(DISPLAYSURF, (50, 50, 50), (x, y, 50, 50), 1)
+        # Draw background (office tile) - smaller tiles and based on camera
+        # Calculate visible area based on camera position
+        cam_x, cam_y = camera.camera.topleft
+        start_x = max(0, -cam_x // TILE_SIZE)
+        start_y = max(0, -cam_y // TILE_SIZE)
+        end_x = min(WORLD_WIDTH // TILE_SIZE, (-cam_x + SCREEN_WIDTH) // TILE_SIZE + 1)
+        end_y = min(WORLD_HEIGHT // TILE_SIZE, (-cam_y + SCREEN_HEIGHT) // TILE_SIZE + 1)
+        
+        for x in range(start_x, end_x):
+            for y in range(start_y, end_y):
+                # Draw tile with camera offset
+                rect = pygame.Rect(
+                    x * TILE_SIZE + cam_x,
+                    y * TILE_SIZE + cam_y,
+                    TILE_SIZE,
+                    TILE_SIZE
+                )
+                pygame.draw.rect(DISPLAYSURF, (50, 50, 50), rect, 1)
                 
-        # Draw all sprites
-        all_sprites.draw(DISPLAYSURF)
+        # Draw all sprites with camera applied
+        for sprite in all_sprites:
+            DISPLAYSURF.blit(sprite.image, camera.apply(sprite))
+            
+        # Draw speech bubbles for enemies
+        for enemy in enemies:
+            enemy.draw_speech_bubble(DISPLAYSURF, camera)
         
         # Draw UI
         if not game_over:
