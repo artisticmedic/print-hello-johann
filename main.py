@@ -63,13 +63,10 @@ SPEECH_MESSAGES = [
     "Just a quick question..."
 ]
 
-# Effects
-lightning_img = pygame.Surface((20, 200), pygame.SRCALPHA)
-pygame.draw.line(lightning_img, (255, 255, 255), (10, 0), (10, 200), 4)
-missile_img = pygame.Surface((10, 20), pygame.SRCALPHA)
-pygame.draw.ellipse(missile_img, (0, 255, 255), (0, 0, 10, 20))
-fire_cone_img = pygame.Surface((100, 100), pygame.SRCALPHA)
-pygame.draw.polygon(fire_cone_img, (255, 100, 0), [(50, 0), (0, 100), (100, 100)])
+# Effects - load actual sprite images
+lightning_img = load_image('attached_assets/lightning-sprite.png', 0.25)
+missile_img = load_image('attached_assets/magic-missile-sprite.png', 0.25)
+fire_cone_img = load_image('attached_assets/fire-cone-sprite.png', 0.25)
 
 # Player class
 class Player(pygame.sprite.Sprite):
@@ -194,6 +191,8 @@ class Camera:
         # Limit scrolling to game area
         x = min(0, x)  # left
         y = min(0, y)  # top
+        x = max(-(self.width - SCREEN_WIDTH), x)  # right
+        y = max(-(self.height - SCREEN_HEIGHT), y)  # bottom
         
         self.camera = pygame.Rect(x, y, self.width, self.height)
 
@@ -302,9 +301,17 @@ class Projectile(pygame.sprite.Sprite):
         if proj_type == 'lightning':
             self.image = lightning_img
             self.damage = 20
+            # Rotate lightning if needed based on direction
+            if dx != 0 or dy != 0:
+                angle = math.degrees(math.atan2(-dy, dx)) + 90
+                self.image = pygame.transform.rotate(self.image, angle)
         elif proj_type == 'missile':
             self.image = missile_img
             self.damage = 10
+            # Rotate missile based on direction
+            if dx != 0 or dy != 0:
+                angle = math.degrees(math.atan2(-dy, dx)) + 90
+                self.image = pygame.transform.rotate(self.image, angle)
         elif proj_type == 'fire_cone':
             self.image = fire_cone_img
             self.damage = 5
