@@ -50,16 +50,16 @@ except pygame.error:
     cake_img = pygame.Surface((20, 20))
     cake_img.fill((255, 192, 203))
 
-# Resize sprites to 1/4 of their original size
-hero_img = pygame.transform.scale(hero_img, (hero_img.get_width() // 4, hero_img.get_height() // 4))
-mob_ariel_img = pygame.transform.scale(mob_ariel_img, (mob_ariel_img.get_width() // 4, mob_ariel_img.get_height() // 4))
-mob_john_img = pygame.transform.scale(mob_john_img, (mob_john_img.get_width() // 4, mob_john_img.get_height() // 4))
-mob_kirtik_img = pygame.transform.scale(mob_kirtik_img, (mob_kirtik_img.get_width() // 4, mob_kirtik_img.get_height() // 4))
-mob_margaret_img = pygame.transform.scale(mob_margaret_img, (mob_margaret_img.get_width() // 4, mob_margaret_img.get_height() // 4))
-mob_tim_img = pygame.transform.scale(mob_tim_img, (mob_tim_img.get_width() // 4, mob_tim_img.get_height() // 4))
-lightning_img = pygame.transform.scale(lightning_img, (lightning_img.get_width() // 4, lightning_img.get_height() // 4))
-magic_missile_img = pygame.transform.scale(magic_missile_img, (magic_missile_img.get_width() // 4, magic_missile_img.get_height() // 4))
-fire_cone_img = pygame.transform.scale(fire_cone_img, (fire_cone_img.get_width() // 4, fire_cone_img.get_height() // 4))
+# Resize sprites to 1/8 of their original size (1/4 of current size, which is already at 1/4)
+hero_img = pygame.transform.scale(hero_img, (hero_img.get_width() // 2, hero_img.get_height() // 2))
+mob_ariel_img = pygame.transform.scale(mob_ariel_img, (mob_ariel_img.get_width() // 2, mob_ariel_img.get_height() // 2))
+mob_john_img = pygame.transform.scale(mob_john_img, (mob_john_img.get_width() // 2, mob_john_img.get_height() // 2))
+mob_kirtik_img = pygame.transform.scale(mob_kirtik_img, (mob_kirtik_img.get_width() // 2, mob_kirtik_img.get_height() // 2))
+mob_margaret_img = pygame.transform.scale(mob_margaret_img, (mob_margaret_img.get_width() // 2, mob_margaret_img.get_height() // 2))
+mob_tim_img = pygame.transform.scale(mob_tim_img, (mob_tim_img.get_width() // 2, mob_tim_img.get_height() // 2))
+lightning_img = pygame.transform.scale(lightning_img, (lightning_img.get_width() // 2, lightning_img.get_height() // 2))
+magic_missile_img = pygame.transform.scale(magic_missile_img, (magic_missile_img.get_width() // 2, magic_missile_img.get_height() // 2))
+fire_cone_img = pygame.transform.scale(fire_cone_img, (fire_cone_img.get_width() // 2, fire_cone_img.get_height() // 2))
 
 # Rotate lightning sprite 90 degrees
 lightning_img = pygame.transform.rotate(lightning_img, 90)
@@ -351,7 +351,7 @@ class FireCone:
         self.y = y
         self.width = fire_cone_img.get_width()
         self.height = fire_cone_img.get_height()
-        self.lifetime = 15
+        self.lifetime = 180  # 3 seconds at 60 FPS
         self.damage = 10
         self.rect = pygame.Rect(self.x - self.width // 2, self.y, self.width, self.height)
 
@@ -567,25 +567,39 @@ def main():
                 cakes.remove(cake)
         
         # Drawing
-        window.fill((200, 200, 200))  # Light gray background
+        window.fill((0, 0, 0))  # Black background for terminal theme
         
-        # Draw office tiles
+        # Draw office tiles (terminal style)
         for tile_x, tile_y, tile_type in office_tiles:
             if (tile_x + TILE_SIZE > camera_x and 
                 tile_x < camera_x + WIDTH and 
                 tile_y + TILE_SIZE > camera_y and 
                 tile_y < camera_y + HEIGHT):
                 
-                if tile_type == 1:  # Desk
-                    pygame.draw.rect(window, (139, 69, 19), (tile_x - camera_x, tile_y - camera_y, TILE_SIZE, TILE_SIZE))
-                elif tile_type == 2:  # Chair
-                    pygame.draw.rect(window, (70, 70, 70), (tile_x - camera_x, tile_y - camera_y, TILE_SIZE, TILE_SIZE))
+                if tile_type == 1:  # Terminal window
+                    pygame.draw.rect(window, (30, 30, 30), (tile_x - camera_x, tile_y - camera_y, TILE_SIZE, TILE_SIZE))
+                    pygame.draw.rect(window, (0, 100, 0), (tile_x - camera_x, tile_y - camera_y, TILE_SIZE, TILE_SIZE), 1)
+                elif tile_type == 2:  # Command prompt
+                    pygame.draw.rect(window, (20, 20, 20), (tile_x - camera_x, tile_y - camera_y, TILE_SIZE, TILE_SIZE))
+                    pygame.draw.rect(window, (0, 150, 0), (tile_x - camera_x, tile_y - camera_y, TILE_SIZE, TILE_SIZE), 1)
+                    
+                    # Add text cursor effect
+                    if random.random() < 0.3:  # Only some tiles get the cursor
+                        cursor_x = tile_x - camera_x + random.randint(5, TILE_SIZE - 10)
+                        cursor_y = tile_y - camera_y + random.randint(5, TILE_SIZE - 10)
+                        pygame.draw.rect(window, (0, 255, 0), (cursor_x, cursor_y, 5, 2))
         
-        # Draw grid lines
+        # Draw terminal-style grid lines
         for x in range(0, MAP_WIDTH * TILE_SIZE, TILE_SIZE):
-            pygame.draw.line(window, (220, 220, 220), (x - camera_x, 0), (x - camera_x, HEIGHT))
+            pygame.draw.line(window, (0, 80, 0), (x - camera_x, 0), (x - camera_x, HEIGHT))
         for y in range(0, MAP_HEIGHT * TILE_SIZE, TILE_SIZE):
-            pygame.draw.line(window, (220, 220, 220), (0, y - camera_y), (WIDTH, y - camera_y))
+            pygame.draw.line(window, (0, 80, 0), (0, y - camera_y), (WIDTH, y - camera_y))
+            
+        # Add some terminal effects - random dots of green text
+        for _ in range(20):
+            x = random.randint(0, WIDTH)
+            y = random.randint(0, HEIGHT)
+            pygame.draw.rect(window, (0, 200, 0), (x, y, 2, 2))
         
         # Draw cakes
         for cake in cakes:
