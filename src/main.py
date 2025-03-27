@@ -12,6 +12,12 @@ WIDTH, HEIGHT = 800, 600
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Johann's Office Survival")
 
+# Game constants
+TILE_SIZE = 40
+MAP_WIDTH = 20  # in tiles
+MAP_HEIGHT = 20  # in tiles
+CAMERA_SPEED = 0.1
+
 # Load assets
 try:
     hero_img = pygame.image.load("assets/sprites/hero-johann.png").convert_alpha()
@@ -72,12 +78,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
-
-# Game constants
-TILE_SIZE = 40
-MAP_WIDTH = 20  # in tiles
-MAP_HEIGHT = 20  # in tiles
-CAMERA_SPEED = 0.1
 
 # Create birthday cake sprite (replacing XP orbs)
 def create_cake_sprite():
