@@ -433,6 +433,7 @@ def main():
     spawn_timer = 0
     camera_x, camera_y = 0, 0
     game_over = False
+    game_over_start_time = 0
 
     # Create office tile grid
     office_tiles = []
@@ -472,7 +473,22 @@ def main():
             # Display game over screen
             window.fill(BLACK)
             
-            # Create skull sprite
+            # Calculate hero position and fade effect
+            current_time = pygame.time.get_ticks()
+            fall_distance = min(150, current_time - game_over_start_time) / 1.5
+            fall_alpha = max(0, 255 - fall_distance)
+            
+            # Create a fading hero sprite
+            falling_hero = hero_img.copy()
+            falling_hero.set_alpha(int(fall_alpha))
+            
+            # Center message
+            font = pygame.font.SysFont(None, 48)
+            message = "Happiest of birthdays, Johann!"
+            message_text = font.render(message, True, WHITE)
+            message_y = HEIGHT//2 - 40
+            
+            # Create skull sprite above the message
             skull_size = 80
             skull = pygame.Surface((skull_size, skull_size), pygame.SRCALPHA)
             
@@ -496,32 +512,17 @@ def main():
                 y_pos = 3*skull_size//4 + abs(x_offset)//2
                 pygame.draw.circle(skull, BLACK, (skull_size//2 + x_offset, y_pos), skull_size//20)
             
-            # Display skull at the top
-            window.blit(skull, (WIDTH//2 - skull_size//2, HEIGHT//4 - skull_size//2))
+            # Display skull above the message
+            skull_y = message_y - skull_size - 20
+            window.blit(skull, (WIDTH//2 - skull_size//2, skull_y))
             
-            # Calculate falling hero position - falls from center to bottom
-            fall_progress = (pygame.time.get_ticks() % 3000) / 3000.0  # 3 second animation cycle
-            fall_y = HEIGHT//3 + fall_progress * (HEIGHT//2)
-            fall_alpha = max(0, 255 - int(fall_progress * 255))  # Fade out
+            # Draw message
+            window.blit(message_text, (WIDTH//2 - message_text.get_width()//2, message_y))
             
-            # Create a fading hero sprite
-            falling_hero = hero_img.copy()
-            falling_hero.set_alpha(fall_alpha)
+            # Draw falling hero just below the message
+            window.blit(falling_hero, (WIDTH//2 - falling_hero.get_width()//2, message_y + message_text.get_height() + 20 + fall_distance))
             
-            # Draw falling hero
-            window.blit(falling_hero, (WIDTH//2 - falling_hero.get_width()//2, fall_y))
-            
-            # Draw gray path below hero
-            gray_path_height = HEIGHT - (HEIGHT//3 + HEIGHT//2)
-            gray_path = pygame.Surface((falling_hero.get_width() * 1.5, gray_path_height))
-            gray_path.fill((50, 50, 50))  # Dark gray
-            window.blit(gray_path, (WIDTH//2 - gray_path.get_width()//2, HEIGHT//3 + HEIGHT//2))
-            
-            # Draw text
-            font = pygame.font.SysFont(None, 48)
-            text = font.render("Happiest of birthdays, Johann!", True, WHITE)
-            window.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 120))
-            
+            # Draw additional text
             font = pygame.font.SysFont(None, 36)
             text = font.render("Better luck next time!", True, WHITE)
             window.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 80))
@@ -585,6 +586,7 @@ def main():
                 # Check for game over
                 if player.health <= 0:
                     game_over = True
+                    game_over_start_time = pygame.time.get_ticks()
 
         # Update projectiles
         for proj in projectiles[:]:
