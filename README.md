@@ -40,7 +40,7 @@ Johann, a developer trying to get work done, must defend against waves of collea
 
 1. Make a local copy for the repository. Use the zip installer to open the file.
 
-2. Grab the pathname for the downloaded file, and cd the pathname in Terminal.
+2. Grab the pathname for the unzipped folder, and then cd pathname in Terminal.
 
 3. Install dependencies
    ```
