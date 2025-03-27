@@ -63,10 +63,13 @@ mob_kirtik_img = pygame.transform.scale(mob_kirtik_img, (TILE_SIZE, TILE_SIZE))
 mob_margaret_img = pygame.transform.scale(mob_margaret_img, (TILE_SIZE, TILE_SIZE))
 mob_tim_img = pygame.transform.scale(mob_tim_img, (TILE_SIZE, TILE_SIZE))
 
-# Keep ability sprites larger (actually scale up by 2x from the last size)
-lightning_img = pygame.transform.scale(lightning_img, (lightning_img.get_width() * 2, lightning_img.get_height() * 2))
-magic_missile_img = pygame.transform.scale(magic_missile_img, (magic_missile_img.get_width() * 2, magic_missile_img.get_height() * 2))
-fire_cone_img = pygame.transform.scale(fire_cone_img, (fire_cone_img.get_width() * 2, fire_cone_img.get_height() * 2))
+# Resize ability sprites to specified dimensions
+# Lightning should be as long as 6 tiles
+lightning_img = pygame.transform.scale(lightning_img, (TILE_SIZE, 6 * TILE_SIZE))
+# Magic missile should be only one tile large
+magic_missile_img = pygame.transform.scale(magic_missile_img, (TILE_SIZE, TILE_SIZE))
+# Fire cone should be the width of roughly 5 tiles
+fire_cone_img = pygame.transform.scale(fire_cone_img, (5 * TILE_SIZE, 5 * TILE_SIZE))
 
 # Rotate lightning sprite 90 degrees
 lightning_img = pygame.transform.rotate(lightning_img, 90)
