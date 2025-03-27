@@ -471,18 +471,65 @@ def main():
         if game_over:
             # Display game over screen
             window.fill(BLACK)
+            
+            # Create skull sprite
+            skull_size = 80
+            skull = pygame.Surface((skull_size, skull_size), pygame.SRCALPHA)
+            
+            # Draw skull - white circle for head
+            pygame.draw.circle(skull, WHITE, (skull_size//2, skull_size//2), skull_size//2)
+            
+            # Draw eye sockets - black circles
+            eye_radius = skull_size//6
+            pygame.draw.circle(skull, BLACK, (skull_size//3, skull_size//3), eye_radius)
+            pygame.draw.circle(skull, BLACK, (2*skull_size//3, skull_size//3), eye_radius)
+            
+            # Draw nose - triangle
+            nose_points = [(skull_size//2, skull_size//2), 
+                          (skull_size//2 - skull_size//8, 2*skull_size//3),
+                          (skull_size//2 + skull_size//8, 2*skull_size//3)]
+            pygame.draw.polygon(skull, BLACK, nose_points)
+            
+            # Draw mouth - curved line
+            for i in range(5):
+                x_offset = (i - 2) * (skull_size//6)
+                y_pos = 3*skull_size//4 + abs(x_offset)//2
+                pygame.draw.circle(skull, BLACK, (skull_size//2 + x_offset, y_pos), skull_size//20)
+            
+            # Display skull at the top
+            window.blit(skull, (WIDTH//2 - skull_size//2, HEIGHT//4 - skull_size//2))
+            
+            # Calculate falling hero position - falls from center to bottom
+            fall_progress = (pygame.time.get_ticks() % 3000) / 3000.0  # 3 second animation cycle
+            fall_y = HEIGHT//3 + fall_progress * (HEIGHT//2)
+            fall_alpha = max(0, 255 - int(fall_progress * 255))  # Fade out
+            
+            # Create a fading hero sprite
+            falling_hero = hero_img.copy()
+            falling_hero.set_alpha(fall_alpha)
+            
+            # Draw falling hero
+            window.blit(falling_hero, (WIDTH//2 - falling_hero.get_width()//2, fall_y))
+            
+            # Draw gray path below hero
+            gray_path_height = HEIGHT - (HEIGHT//3 + HEIGHT//2)
+            gray_path = pygame.Surface((falling_hero.get_width() * 1.5, gray_path_height))
+            gray_path.fill((50, 50, 50))  # Dark gray
+            window.blit(gray_path, (WIDTH//2 - gray_path.get_width()//2, HEIGHT//3 + HEIGHT//2))
+            
+            # Draw text
             font = pygame.font.SysFont(None, 48)
             text = font.render("Happiest of birthdays, Johann!", True, WHITE)
-            window.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - 50))
-
+            window.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 120))
+            
             font = pygame.font.SysFont(None, 36)
             text = font.render("Better luck next time!", True, WHITE)
-            window.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
-
+            window.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 80))
+            
             font = pygame.font.SysFont(None, 24)
             text = font.render("Press R to restart", True, WHITE)
-            window.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 + 50))
-
+            window.blit(text, (WIDTH//2 - text.get_width()//2, HEIGHT - 40))
+            
             pygame.display.update()
             clock.tick(60)
             continue
