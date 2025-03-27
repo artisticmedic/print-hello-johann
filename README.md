@@ -40,7 +40,7 @@ Johann, a developer trying to get work done, must defend against waves of collea
 
 1. Clone the repository
    ```
-   git clone https://github.com/yourusername/johanns-office-survival.git
+   git clone https://github.com/artisticmedic/johanns-office-survival.git
    cd johanns-office-survival
    ```
 
