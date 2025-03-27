@@ -38,18 +38,16 @@ Johann, a developer trying to get work done, must defend against waves of collea
 
 ### Installation
 
-1. Clone the repository
-   ```
-   git clone https://github.com/artisticmedic/johanns-office-survival.git
-   cd johanns-office-survival
-   ```
+1. Make a local copy for the repository. Use the zip installer to open the file.
 
-2. Install dependencies
+2. Grab the pathname for the downloaded file, and cd the pathname in Terminal.
+
+3. Install dependencies
    ```
    pip install pygame dearpygui
    ```
 
-3. Run the game
+4. Run the game
    ```
    python src/main.py
    ```
