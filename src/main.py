@@ -49,16 +49,18 @@ except pygame.error:
     cake_img = pygame.Surface((20, 20))
     cake_img.fill((255, 192, 203))
 
-# Resize sprites to 1/4 of their current size
-hero_img = pygame.transform.scale(hero_img, (hero_img.get_width() // 4, hero_img.get_height() // 4))
-mob_ariel_img = pygame.transform.scale(mob_ariel_img, (mob_ariel_img.get_width() // 4, mob_ariel_img.get_height() // 4))
-mob_john_img = pygame.transform.scale(mob_john_img, (mob_john_img.get_width() // 4, mob_john_img.get_height() // 4))
-mob_kirtik_img = pygame.transform.scale(mob_kirtik_img, (mob_kirtik_img.get_width() // 4, mob_kirtik_img.get_height() // 4))
-mob_margaret_img = pygame.transform.scale(mob_margaret_img, (mob_margaret_img.get_width() // 4, mob_margaret_img.get_height() // 4))
-mob_tim_img = pygame.transform.scale(mob_tim_img, (mob_tim_img.get_width() // 4, mob_tim_img.get_height() // 4))
-lightning_img = pygame.transform.scale(lightning_img, (lightning_img.get_width() // 4, lightning_img.get_height() // 4))
-magic_missile_img = pygame.transform.scale(magic_missile_img, (magic_missile_img.get_width() // 4, magic_missile_img.get_height() // 4))
-fire_cone_img = pygame.transform.scale(fire_cone_img, (fire_cone_img.get_width() // 4, fire_cone_img.get_height() // 4))
+# Resize character sprites to match tile size
+hero_img = pygame.transform.scale(hero_img, (TILE_SIZE, TILE_SIZE))
+mob_ariel_img = pygame.transform.scale(mob_ariel_img, (TILE_SIZE, TILE_SIZE))
+mob_john_img = pygame.transform.scale(mob_john_img, (TILE_SIZE, TILE_SIZE))
+mob_kirtik_img = pygame.transform.scale(mob_kirtik_img, (TILE_SIZE, TILE_SIZE))
+mob_margaret_img = pygame.transform.scale(mob_margaret_img, (TILE_SIZE, TILE_SIZE))
+mob_tim_img = pygame.transform.scale(mob_tim_img, (TILE_SIZE, TILE_SIZE))
+
+# Keep ability sprites larger (actually scale up by 2x from the last size)
+lightning_img = pygame.transform.scale(lightning_img, (lightning_img.get_width() * 2, lightning_img.get_height() * 2))
+magic_missile_img = pygame.transform.scale(magic_missile_img, (magic_missile_img.get_width() * 2, magic_missile_img.get_height() * 2))
+fire_cone_img = pygame.transform.scale(fire_cone_img, (fire_cone_img.get_width() * 2, fire_cone_img.get_height() * 2))
 
 # Rotate lightning sprite 90 degrees
 lightning_img = pygame.transform.rotate(lightning_img, 90)
