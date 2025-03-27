@@ -12,6 +12,13 @@ WIDTH, HEIGHT = 800, 600
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Johann's Office Survival")
 
+# Set game icon
+try:
+    icon = pygame.image.load("assets/icons/app_icon.png")
+    pygame.display.set_icon(icon)
+except pygame.error:
+    print("Warning: Unable to load app icon")
+
 # Game constants
 TILE_SIZE = 40
 MAP_WIDTH = 20  # in tiles
